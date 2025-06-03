@@ -531,9 +531,9 @@ def ChartOrder_MA(Kbar_df,TR):
     fig5.layout.yaxis2.showgrid=True
     st.plotly_chart(fig5, use_container_width=True)
 
-import talib
+import pandas_ta as ta
 def ChartOrder_RSI(Kbar_df, TR):
-    Kbar_df['RSI'] = talib.RSI(Kbar_df['close'], timeperiod=14)
+    Kbar_df['RSI'] = ta.rsi(Kbar_df['close'], length=14)
 
     BTR = [i for i in TR if i[0] in ['Buy', 'B']]
     STR = [i for i in TR if i[0] in ['Sell', 'S']]
@@ -565,11 +565,9 @@ def ChartOrder_RSI(Kbar_df, TR):
     st.plotly_chart(fig, use_container_width=True)
     
 def ChartOrder_MACD(Kbar_df, TR):
-    Kbar_df['macd'], Kbar_df['signal'], _ = talib.MACD(Kbar_df['close'], fastperiod=12, slowperiod=26, signalperiod=9)
-
-    BTR = [i for i in TR if i[0] in ['Buy', 'B']]
-    STR = [i for i in TR if i[0] in ['Sell', 'S']]
-
+    macd = ta.macd(Kbar_df['close'], fast=12, slow=26, signal=9)
+    Kbar_df['macd'] = macd['MACD_12_26_9']
+    Kbar_df['signal'] = macd['MACDs_12_26_9']
     # 下單點位處理略同RSI略過...
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -583,11 +581,10 @@ def ChartOrder_MACD(Kbar_df, TR):
     st.plotly_chart(fig, use_container_width=True)
     
 def ChartOrder_Bollinger(Kbar_df, TR):
-    upper, middle, lower = talib.BBANDS(Kbar_df['close'], timeperiod=20, nbdevup=2, nbdevdn=2)
-    Kbar_df['BB_upper'], Kbar_df['BB_middle'], Kbar_df['BB_lower'] = upper, middle, lower
-
-    BTR = [i for i in TR if i[0] in ['Buy', 'B']]
-    STR = [i for i in TR if i[0] in ['Sell', 'S']]
+    bb = ta.bbands(Kbar_df['close'], length=20, std=2)
+    Kbar_df['BB_upper'] = bb['BBU_20_2.0']
+    Kbar_df['BB_middle'] = bb['BBM_20_2.0']
+    Kbar_df['BB_lower'] = bb['BBL_20_2.0']
 
     # 下單點位處理略同RSI略過...
 
@@ -698,7 +695,7 @@ elif choice_strategy == choices_strategies[1]:
         MoveStopLoss = st.slider('停損點數', 0, 100, 30)
         Order_Quantity = st.slider('下單數量', 1, 100, 1)
 
-    KBar_df['RSI'] = talib.RSI(KBar_df['close'], timeperiod=RSIPeriod)
+    KBar_df['RSI'] = ta.RSI(KBar_df['close'], timeperiod=RSIPeriod)
     last_nan_index_RSI = KBar_df['RSI'][::-1].index[KBar_df['RSI'][::-1].apply(pd.isna)][0]
     OrderRecord = Record()
 
