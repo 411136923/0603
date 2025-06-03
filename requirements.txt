@@ -9,6 +9,4 @@ plotly
 mplfinance
 shioaji
 pynacl
-pandas
-pandas-ta
 
